@@ -2,51 +2,86 @@
 
 class FileUpload {
 
-    public $file;
-    public $maxFileSize;
-    public $uploadDir;
-    public $Extensions;
+    public $files;
+    const maxFileSize = '29999';
+    const uploadDir = 'uploads/';
+    const allowedExtensions = "jpg,png,gif";
+    const allowedExtesionsError = "这种类型的文件不可上传！";
+    const allowedFileSizeError = "文件大小超过允许范围";
 
-    public function __construct($file, $maxFileSize, $uploadDir, $fileExtensions){
-        $this->file = $file;
-        $this->maxFileSize = $maxFileSize;
-        $this->uploadDir = $uploadDir;
-        $this->Extensions = $fileExtensions;
+    public function __construct($_FILES){
+        $this->file = $_FILES;
     }
 
-    function getUploadedFileExtension(){
-        return end(explode(".",$this->file));
+    //检查上传的文件类型是否在允许的文件类型范围内
+    function checkAllowedFileExtensions(){
+        if($this->files){
+            $files = $this->files;
+            $allowedExts = $this->commaDelimitedStringsToArray($this::allowedExtensions);
+            foreach($files as $key => $value){
+                 $filename = $_FILES[$key]["name"];
+                 $extension = $this->getUploadedFileExtension($filename);
+                 if(in_array($extension, $allowedExts) == false){
+                     return $this::allowedExtesionsError;
+                 }else{
+                     return true;
+                 }
+            }
+        }
     }
 
-    function checkFileExtensions(){
-        $extensions = $this->Extensions;
-
+    function fileUpload(){
+        if($this->checkAllowedFileExtensions() && $this->checkFileSize()){
+             $files = $this->files;
+               foreach($files as $key => $value){
+                    $tmpname = $files[$key]["tmp_name"];
+                    $destinationfile = $this::uploadDir.$tmpname;
+                    move_uploaded_file($tmpname, $destinationfile);
+               }
+        }
     }
 
-    function restrictFileSize(){
-
+    function getUploadedFileExtension($filename){
+        return substr($filename, strrpos($filename, '.')+1);
     }
 
-    public function checkFileSize(){
-
+    function checkFileSize(){
+        if($this->files){
+            $files = $this->files;
+            foreach($files as $key => $value){
+                $filesize = $_FILES[$key]["size"];
+                if($filesize > $this::maxFileSize){
+                    return $this::allowedFileSizeError;
+                }else{
+                    return true;
+                }
+            }
+        }
     }
 
-    public function fileUpload(){
-
-    }
-
-    function renameFile(){
-
+    function renameFile($originalFilename){
+        $extension = $this->getUploadedFileExtension($originalFilename);
+        $newFileName = $this->generateRandomString(6);
+        return $newFileName.".".$extension;
     }
 //$strings可以是一个也可以是多个，都会转化为数组，如果多个的话用英文逗号隔开，它会遍历返回
-    function commaDelimitedStringsToArray(){
-        if(strpos($this->Extensions, ",") === false){
-            return $arrays = array($this->Extensions);
+    function commaDelimitedStringsToArray($commaDelimitedStrings){
+        if(strpos($commaDelimitedStrings, ",") === false){
+            return $arrays = array();
         }else{
-            $arrays = explode(',',$this->extensions);
+            $arrays = explode(',',$commaDelimitedStrings);
             return $arrays;
         }
     }
 
+    function generateRandomString($length) {
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 }
 
