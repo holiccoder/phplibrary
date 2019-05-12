@@ -1,9 +1,9 @@
 <?php
-
+//注意，如果上传多个文件，那么在前端判断哪个字段是空，哪个字段是不为空，去除空的字段再上传
 class FileUpload {
 
     public $files;
-    const maxFileSize = '38292722';
+    const maxFileSize = 2;
     const uploadDir = 'uploads/';
     const imageFileExtensions = "jpg,jpeg,png,svg,gif";
     const allowedExtensions = "jpg,png,gif";
@@ -19,13 +19,13 @@ class FileUpload {
     function checkAllowedFileExtensions(){
         $files = $this->files;
         if($files){
-            $allowedExts = $this->commaDelimitedStringsToArray($this::allowedExtensions);
+            $allowedExts = $this->commaDelimitedStringsToArray(self::allowedExtensions);
             $checkSuccess = false;
             foreach($files as $key => $value){
                  $filename = $_FILES[$key]["name"];
                  $extension = $this->getUploadedFileExtension($filename);
                  if(in_array($extension, $allowedExts) == false){
-                     return $this::allowedExtesionsError;
+                     return self::allowedExtesionsError;
                  }else{
                      $checkSuccess = true;
                  }
@@ -40,8 +40,9 @@ class FileUpload {
             $files = $this->files;
             foreach($files as $key => $value){
                 $filesize = $_FILES[$key]["size"];
-                if($filesize > $this::maxFileSize){
-                    return $this::allowedFileSizeError;
+                $maxSize = self::maxFileSize*1024*1024;
+                if($filesize > $maxSize){
+                    return self::allowedFileSizeError;
                 }else{
                     return true;
                 }
@@ -51,19 +52,18 @@ class FileUpload {
 
     function renameFile($originalFilename){
         $extension = $this->getUploadedFileExtension($originalFilename);
-        $newFileName = $this->generateRandomString($this::fileNameSize);
+        $newFileName = $this->generateRandomString(self::fileNameSize);
         return $newFileName.".".$extension;
     }
 
     function fileUpload(){
         if($this->checkAllowedFileExtensions() == 1 && $this->checkFileSize() == 1){
                $files = $this->files;
-
                foreach($files as $key => $value){
                     $tmpname = $files[$key]["tmp_name"];
                     $filename = $files[$key]["name"];
                     $newfilename = $this->renameFile($filename);
-                    $destinationfile = $this::uploadDir.$newfilename;
+                    $destinationfile = self::uploadDir.$newfilename;
                     move_uploaded_file($tmpname, $destinationfile);
                }
                return "File Uploaded";

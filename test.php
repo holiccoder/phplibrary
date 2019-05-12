@@ -4,5 +4,8 @@
 
 require_once "FileUpload.php";
 
-$fileupload = new FileUpload($_FILES);
-echo $fileupload->checkAllowedFileExtensions();
+//$fileupload = new FileUpload($_FILES);
+//echo $fileupload->fileUpload($_FILES);
+
+print_r($_FILES);
+
