@@ -35,9 +35,15 @@ class FileUpload {
              $files = $this->files;
                foreach($files as $key => $value){
                     $tmpname = $files[$key]["tmp_name"];
-                    $destinationfile = $this::uploadDir.$tmpname;
+                    $filename = $files[$key]["name"];
+                    $newfilename = $this->renameFile($filename);
+                    $destinationfile = $this::uploadDir.$newfilename;
                     move_uploaded_file($tmpname, $destinationfile);
+                    echo "上传成功！";
                }
+        }else{
+            echo $this->checkAllowedFileExtensions();
+            echo $this->checkFileSize();
         }
     }
 
