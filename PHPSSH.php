@@ -39,4 +39,16 @@ class PHPSSH{
         return "editsuccess";
     }
 
+    function renameFile($originalFilePath, $newFilePath){
+        //the two variables are almost the same, except file name
+        $this->sshExecCmd("mv $originalFilePath $newFilePath");
+        return "success";
+    }
+
+    function moveFile($originalFilePath, $newFilePath){
+        //new file path needs to be a different path
+        $this->sshExecCmd("mv $originalFilePath $newFilePath");
+        return "success";
+    }
+
 }
