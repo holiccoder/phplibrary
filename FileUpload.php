@@ -1,18 +1,24 @@
 <?php
 //注意，如果上传多个文件，那么在前端判断哪个字段是空，哪个字段是不为空，去除空的字段再上传
+//需要设置最大文件大小和重命名名称，如果有必要的话
 class FileUpload {
 
     public $files;
-    const maxFileSize = 2;
-    const uploadDir = 'uploads/';
-    const imageFileExtensions = "jpg,jpeg,png,svg,gif";
-    const allowedExtensions = "jpg,png,gif";
+    //单位为MB
+    public $maxFileSize = 2;
+    public $uploadDir;
+    public $rename;
+    //如果判断是否为图片的时候用这个
+    const allowedExtensions = "jpg,jpeg,png,svg,gif";
     const allowedExtesionsError = "this type of file could not be uploaded";
     const allowedFileSizeError = "Your file has exeeded the limit of the filesize";
     const fileNameSize = 6;
 
-    public function __construct($FILES){
+    public function __construct($FILES,$rename = null){
         $this->files = $FILES;
+        if($rename){
+            $this->rename = $rename;
+        }
     }
 
     //检查上传的文件类型是否在允许的文件类型范围内
@@ -40,7 +46,7 @@ class FileUpload {
             $files = $this->files;
             foreach($files as $key => $value){
                 $filesize = $_FILES[$key]["size"];
-                $maxSize = self::maxFileSize*1024*1024;
+                $maxSize = $this->maxFileSize*1024*1024;
                 if($filesize > $maxSize){
                     return self::allowedFileSizeError;
                 }else{
@@ -62,8 +68,12 @@ class FileUpload {
                foreach($files as $key => $value){
                     $tmpname = $files[$key]["tmp_name"];
                     $filename = $files[$key]["name"];
-                    $newfilename = $this->renameFile($filename);
-                    $destinationfile = self::uploadDir.$newfilename;
+                    if($this->rename){
+                         $newfilename = $this->rename.'.'.$this->getUploadedFileExtension($filename);
+                    }else{
+                         $newfilename = $this->renameFile($filename);
+                    }
+                    $destinationfile = $this->uploadDir.$newfilename;
                     move_uploaded_file($tmpname, $destinationfile);
                }
                return "File Uploaded";
