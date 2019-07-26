@@ -106,43 +106,39 @@ class FileUpload {
         }
         return $randomString;
     }
-    function curlFileUpload(){
-        $dataFile      = 'upload.txt';
-$sftpServer    = '216.107.128.134';
-$sftpUsername  = 'root';
-$sftpPassword  = 'ranger1984@#$';
-$sftpPort      = 22;
-$sftpRemoteDir = '/root';
- 
-$ch = curl_init('sftp://' . $sftpServer . ':' . $sftpPort . $sftpRemoteDir . '/' . basename($dataFile));
- 
-$fh = fopen($dataFile, 'r');
- 
-if ($fh) {
-    curl_setopt($ch, CURLOPT_USERPWD, $sftpUsername . ':' . $sftpPassword);
-    curl_setopt($ch, CURLOPT_UPLOAD, true);
-    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_SFTP);
-    curl_setopt($ch, CURLOPT_INFILE, $fh);
-    curl_setopt($ch, CURLOPT_INFILESIZE, filesize($dataFile));
-    curl_setopt($ch, CURLOPT_VERBOSE, true);
- 
-    $verbose = fopen('php://temp', 'w+');
-    curl_setopt($ch, CURLOPT_STDERR, $verbose);
- 
-    $response = curl_exec($ch);
-    $error = curl_error($ch);
-    curl_close($ch);
- 
-    if ($response) {
-        echo "Success";
-    } else {
-        echo "Failure";
-        rewind($verbose);
-        $verboseLog = stream_get_contents($verbose);
-        echo "Verbose information:\n" . $verboseLog . "\n";
-    }
-  }
-    }
     
 
+    function curlFileUploadThroughSSH($fileToUpload, $serverIp, $serverUser, $serverPass, $remoteFolder){
+    
+    $sftpPort = 22;
+
+    $ch = curl_init('sftp://' . $serverIp . ':' . $sftpPort . $remoteFolder . '/' . basename($fileToUpload));
+
+    $fh = fopen($fileToUpload, 'r');
+
+    if ($fh) {
+        curl_setopt($ch, CURLOPT_USERPWD, $sftpUsername . ':' . $sftpPassword);
+        curl_setopt($ch, CURLOPT_UPLOAD, true);
+        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_SFTP);
+        curl_setopt($ch, CURLOPT_INFILE, $fh);
+        curl_setopt($ch, CURLOPT_INFILESIZE, filesize($dataFile));
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+        $verbose = fopen('php://temp', 'w+');
+        curl_setopt($ch, CURLOPT_STDERR, $verbose);
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response) {
+            return "Success";
+        } else {
+            return "Failure";
+            //rewind($verbose);
+            //$verboseLog = stream_get_contents($verbose);
+            //echo "Verbose information:\n" . $verboseLog . "\n";
+        }
+    }
+    
 }
