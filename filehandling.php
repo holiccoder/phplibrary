@@ -142,19 +142,19 @@ class FileHandling {
     }
 
     //copy files in a folder to another folder
-    function copyFileUnderOneFolderToAnother($sourcefolder, $targetfolder){
-        $dirs = scandir($sourcefolder);
-        foreach($dirs as $file){
-            if(!empty($file) && $file != '.' && $file != '..')
-            {
-                $sourcefile = $sourcefolder.$file;
-                if(!is_dir($targetfolder)){
-                    mkdir($targetfolder);
-                }
-                $targetfile = $targetfolder.$file;
-                copy($sourcefile, $targetfile);
+    function recurse_copy($src,$dst) {
+                $dir = opendir($src);
+                @mkdir($dst);
+                while(false !== ( $file = readdir($dir)) ) {
+                    if (( $file != '.' ) && ( $file != '..' )) {
+                    if ( is_dir($src . '/' . $file) ) {
+                     recurse_copy($src . '/' . $file,$dst . '/' . $file);
+               }else {
+                copy($src . '/' . $file,$dst . '/' . $file);
             }
-        }
+         }
+      }
+    closedir($dir);
     }
 
 }
